@@ -1,0 +1,291 @@
+openapi: 3.0.0
+info:
+    title: Интеллектуальный модуль образовательных программ
+    description: API для управления курсами и образовательными программами
+    version: 1.0.0
+servers:
+    - url: http://localhost:8000
+      description: Локальный сервер разработки
+tags:
+    - name: Курсы
+      description: Операции с учебными курсами
+    - name: Программы
+      description: Операции с образовательными программами
+paths:
+    /courses/:
+        post:
+            tags: ['Курсы']
+            summary: Создать новый курс
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CourseCreate'
+            responses:
+                '201':
+                    description: Курс создан
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Course'
+                '422':
+                    description: Ошибка валидации
+        get:
+            tags: ['Курсы']
+            summary: Получить список всех курсов
+            parameters:
+                - name: skip
+                  in: query
+                  description: Сколько записей пропустить
+                  schema:
+                      type: integer
+                      default: 0
+                - name: limit
+                  in: query
+                  description: Максимальное количество возвращаемых записей
+                  schema:
+                      type: integer
+                      default: 100
+            responses:
+                '200':
+                    description: Список курсов
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Course'
+
+    /courses/{course_id}:
+        get:
+            tags: ['Курсы']
+            summary: Получить курс по ID
+            parameters:
+                - name: course_id
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                '200':
+                    description: Информация о курсе
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Course'
+                '404':
+                    description: Курс не найден
+        put:
+            tags: ['Курсы']
+            summary: Обновить данные курса
+            parameters:
+                - name: course_id
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CourseCreate'
+            responses:
+                '200':
+                    description: Курс обновлен
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Course'
+                '404':
+                    description: Курс не найден
+        delete:
+            tags: ['Курсы']
+            summary: Удалить курс
+            parameters:
+                - name: course_id
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                '204':
+                    description: Курс удален
+                '404':
+                    description: Курс не найден
+
+    /programs/:
+        post:
+            tags: ['Программы']
+            summary: Создать новую программу
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ProgramCreate'
+            responses:
+                '201':
+                    description: Программа создана
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Program'
+        get:
+            tags: ['Программы']
+            summary: Получить список всех программ
+            parameters:
+                - name: skip
+                  in: query
+                  schema:
+                      type: integer
+                      default: 0
+                - name: limit
+                  in: query
+                  schema:
+                      type: integer
+                      default: 100
+            responses:
+                '200':
+                    description: Список программ
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Program'
+
+    /programs/{program_id}:
+        get:
+            tags: ['Программы']
+            summary: Получить программу по ID
+            parameters:
+                - name: program_id
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                '200':
+                    description: Информация о программе
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Program'
+                '404':
+                    description: Программа не найдена
+        put:
+            tags: ['Программы']
+            summary: Обновить данные программы
+            parameters:
+                - name: program_id
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ProgramCreate'
+            responses:
+                '200':
+                    description: Программа обновлена
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Program'
+                '404':
+                    description: Программа не найдена
+        delete:
+            tags: ['Программы']
+            summary: Удалить программу
+            parameters:
+                - name: program_id
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                '204':
+                    description: Программа удалена
+                '404':
+                    description: Программа не найдена
+
+components:
+    schemas:
+        CourseBase:
+            type: object
+            properties:
+                title:
+                    type: string
+                description:
+                    type: string
+                total_hours:
+                    type: integer
+                lecture_hours:
+                    type: integer
+                practice_hours:
+                    type: integer
+                difficulty:
+                    $ref: '#/components/schemas/DifficultyLevel'
+                has_online:
+                    type: boolean
+            required:
+                - title
+                - total_hours
+
+        CourseCreate:
+            allOf:
+                - $ref: '#/components/schemas/CourseBase'
+
+        Course:
+            allOf:
+                - $ref: '#/components/schemas/CourseBase'
+            properties:
+                id:
+                    type: integer
+            required:
+                - id
+
+        ProgramBase:
+            type: object
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                total_duration_weeks:
+                    type: integer
+            required:
+                - name
+
+        ProgramCreate:
+            allOf:
+                - $ref: '#/components/schemas/ProgramBase'
+            properties:
+                course_ids:
+                    type: array
+                    items:
+                        type: integer
+                    default: []
+
+        Program:
+            allOf:
+                - $ref: '#/components/schemas/ProgramBase'
+            properties:
+                id:
+                    type: integer
+                courses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Course'
+            required:
+                - id
+
+        DifficultyLevel:
+            type: string
+            enum: [начальный, средний, продвинутый]
+            example: средний
